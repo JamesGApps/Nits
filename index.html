@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nits — HDR TIFF Viewer for iPad</title>
+  <meta name="description" content="A fast, native HDR TIFF viewer for iPad. Built by a photographer for photographers.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Nits — HDR TIFF Viewer">
+  <meta property="og:description" content="See every stop. A fast, native HDR TIFF viewer for iPad.">
+  <meta property="og:image" content="og-preview.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nits.jamesga.lt">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <style>
+    /* ---------- Reset & base ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                   "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #0A0A0E;
+      color: #F5F5F7;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; transition: opacity 0.2s; }
+    a:hover { opacity: 0.8; }
+
+    :root {
+      --bg: #0A0A0E;
+      --bg-elev: #14141A;
+      --text: #F5F5F7;
+      --text-dim: #A1A1A6;
+      --accent: #C82E86;
+      --brand-grad: linear-gradient(135deg,
+                    #FF9A3E 0%, #FB5E5E 28%, #C82E86 55%,
+                    #7C2C9C 80%, #2E1A66 100%);
+      --container: 1100px;
+    }
+
+    .container {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section { padding: 120px 0; }
+    section h2 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 32px;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 80px 24px;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background: radial-gradient(circle at 50% 30%,
+                  rgba(200, 46, 134, 0.35) 0%,
+                  rgba(124, 44, 156, 0.18) 35%,
+                  rgba(10, 10, 14, 0) 70%);
+      z-index: 0;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-icon {
+      width: 140px;
+      height: 140px;
+      border-radius: 32px;
+      margin: 0 auto 40px;
+      box-shadow: 0 20px 60px rgba(200, 46, 134, 0.35);
+    }
+	.hero-icon img {
+	  width: 100%;
+	  height: 100%;
+	  border-radius: inherit;
+	}
+    .hero h1 {
+      font-size: clamp(72px, 12vw, 140px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 28px;
+    }
+    .tagline {
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 500;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+      letter-spacing: -0.01em;
+    }
+    .hero-sub {
+      font-size: 19px;
+      color: var(--text-dim);
+      max-width: 560px;
+      margin: 0 auto 48px;
+    }
+    .app-store-badge img {
+      height: 60px;
+      width: auto;
+      display: inline-block;
+    }
+    .app-store-badge:hover { opacity: 0.85; }
+
+    /* ---------- Hook ---------- */
+    .hook {
+      text-align: center;
+      padding: 160px 0;
+    }
+    .hook .quote {
+      font-size: clamp(28px, 4.2vw, 48px);
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    .hook .quote em {
+      font-style: normal;
+      background: var(--brand-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ---------- Features ---------- */
+    .feature {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      margin-bottom: 140px;
+    }
+    .feature:last-child { margin-bottom: 0; }
+    .feature:nth-child(even) .feature-text { order: 2; }
+    .feature:nth-child(even) .feature-img  { order: 1; }
+    .feature h3 {
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .feature p {
+      font-size: 19px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .feature-img img {
+      border-radius: 16px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    }
+
+    @media (max-width: 768px) {
+      .feature {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        margin-bottom: 80px;
+      }
+      .feature:nth-child(even) .feature-text { order: 1; }
+      .feature:nth-child(even) .feature-img  { order: 2; }
+    }
+
+    /* ---------- Gallery ---------- */
+    .gallery { text-align: center; }
+    .gallery .lead {
+      font-size: 19px;
+      color: var(--text-dim);
+      max-width: 720px;
+      margin: 0 auto 64px;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .gallery-grid img {
+      border-radius: 12px;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      /*cursor: zoom-in;*/
+      transition: transform 0.4s, filter 0.4s;
+      filter: brightness(0.88);
+    }
+    .gallery-grid img:hover {
+      transform: scale(1.02);
+      filter: brightness(1);
+    }
+
+    /* ---------- About ---------- */
+    .about { background: var(--bg-elev); }
+    .about-content {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .about-photo {
+      aspect-ratio: 1;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+	.about-photo img {
+	  width: 100%;
+	  height: 100%;
+	  border-radius: inherit;
+	  object-fit: cover;
+	}
+    .about p {
+      font-size: 19px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .about p:first-of-type {
+      font-size: 22px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .about-content { grid-template-columns: 1fr; gap: 40px; }
+      .about-photo { max-width: 280px; }
+    }
+
+    /* ---------- Roadmap ---------- */
+    .roadmap { text-align: center; }
+    .roadmap-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 60px auto 0;
+    }
+    .roadmap-card {
+      background: var(--bg-elev);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: left;
+    }
+    .roadmap-card h4 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .roadmap-card p {
+      font-size: 15px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ---------- FAQ ---------- */
+    .faq h2 { text-align: center; }
+    .faq-list {
+      max-width: 760px;
+      margin: 60px auto 0;
+    }
+    .faq-item {
+      padding: 32px 0;
+      border-bottom: 1px solid #1F1F23;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-item h4 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .faq-item p {
+      font-size: 17px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ---------- Bottom CTA ---------- */
+    .cta-bottom {
+      text-align: center;
+      padding: 140px 0;
+    }
+    .cta-bottom h2 {
+      background: var(--brand-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 24px;
+    }
+    .cta-bottom .tagline { margin-bottom: 48px; }
+
+    /* ---------- Footer ---------- */
+    footer {
+      padding: 60px 0 40px;
+      border-top: 1px solid #1F1F23;
+      color: var(--text-dim);
+      font-size: 14px;
+      text-align: center;
+    }
+    footer .links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+    footer .links a:hover { color: var(--text); }
+    footer .credit {
+      font-size: 13px;
+      margin-top: 8px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main>
+
+    <!-- ========== HERO ========== -->
+    <section class="hero">
+      <div class="hero-content">
+		<div class="hero-icon">
+		  <img src="icon.png" alt="Nits app icon">
+		</div>
+        <h1>Nits</h1>
+        <p class="tagline">See every stop.</p>
+        <p class="hero-sub">A fast, native HDR TIFF viewer for iPad. Built by a photographer who got tired of waiting for huge files to open.</p>
+        <a href="https://apps.apple.com/app/id6773780191" class="app-store-badge" aria-label="Download Nits on the App Store">
+          <img src="app-store-badge.svg" alt="Download on the App Store" width="200" height="60">
+        </a>
+      </div>
+    </section>
+
+    <!-- ========== HOOK ========== -->
+    <section class="hook">
+      <div class="container">
+        <p class="quote">I built Nits because I was tired of waiting <em>fifteen seconds</em> for a 600&nbsp;MB HDR TIFF to open. So I wrote my own viewer.</p>
+      </div>
+    </section>
+
+    <!-- ========== FEATURES ========== -->
+    <section class="features">
+      <div class="container">
+
+        <div class="feature">
+          <div class="feature-text">
+            <h3>See true HDR.</h3>
+            <p>Nits renders gain-map and floating-point HDR TIFFs in full extended dynamic range. Highlights glow the way they did in the scene — not clipped, not compressed.</p>
+          </div>
+          <div class="feature-img">
+            <img src="screenshot-1.jpg" alt="A vivid HDR peacock photo displayed in Nits">
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-text">
+            <h3>Read your image.</h3>
+            <p>Live RGB histogram with an SDR/HDR split. EXIF panel showing focal length, aperture, shutter, ISO, lens, color profile, bit depth, and HDR headroom — everything you need to read what you shot.</p>
+          </div>
+          <div class="feature-img">
+            <img src="screenshot-2.jpg" alt="Histogram and EXIF panel visible in Nits">
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-text">
+            <h3>Move through a shoot.</h3>
+            <p>Filmstrip of every image in the folder. Tap a thumbnail to jump, swipe through frames, or pinch to 1:1 pixels with fluid tile rendering. No waiting. No downsampled mush.</p>
+          </div>
+          <div class="feature-img">
+            <img src="screenshot-3.jpg" alt="Filmstrip showing thumbnails of a flower shoot">
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== GALLERY ========== -->
+    <section class="gallery">
+      <div class="container">
+        <h2>Shot on my travels.</h2>
+        <p class="lead">Every example image inside Nits — and every photo on this page — was shot by me, across France, Tanzania, Japan, and Zanzibar.</p>
+        <div class="gallery-grid">
+          <img src="photo-1.jpg" alt="HDR photo from Tanzania">
+          <img src="photo-2.jpg" alt="HDR photo from France">
+          <img src="photo-3.jpg" alt="HDR photo from Japan">
+          <img src="photo-4.jpg" alt="HDR photo from Zanzibar">
+          <img src="photo-5.jpg" alt="HDR photo from Tanzania">
+          <img src="photo-6.jpg" alt="HDR photo from France">
+          <img src="photo-7.jpg" alt="HDR photo from Japan">
+          <img src="photo-8.jpg" alt="HDR photo from Tanzania">
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ABOUT ========== -->
+    <section class="about">
+      <div class="container">
+        <div class="about-content">
+			<div class="about-photo">
+				<img src="me.jpg" alt="">
+			</div>          
+		<div>
+            <h2>Made by a photographer.</h2>
+            <p>I shoot HDR photography for fun and built Nits for myself first.</p>
+            <p>Over years of travel I've collected more than 10,000 HDR photos. Every viewer I tried either took fifteen seconds to open a single 600&nbsp;MB TIFF or quietly tone-mapped them down to SDR without asking. I wanted something that opens instantly, renders in full dynamic range, and gets out of the way.</p>
+            <p>Nits is the viewer I wished existed, polished enough to share.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ROADMAP ========== -->
+    <section class="roadmap">
+      <div class="container">
+        <h2>What's next.</h2>
+        <div class="roadmap-items">
+          <div class="roadmap-card">
+            <h4>Export &amp; Share</h4>
+            <p>HDR HEIC, SDR JPEG, or original file — share images straight from the viewer.</p>
+          </div>
+          <div class="roadmap-card">
+            <h4>Pixel Loupe</h4>
+            <p>Press and hold to magnify, and read exact RGB and HDR values under your finger.</p>
+          </div>
+          <div class="roadmap-card">
+            <h4>Side-by-Side</h4>
+            <p>Place two images, or one image at two exposures, next to each other to pick the keeper.</p>
+          </div>
+          <div class="roadmap-card">
+            <h4>More Formats</h4>
+            <p>HEIC, AVIF, and OpenEXR support coming in a future update.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FAQ ========== -->
+    <section class="faq">
+      <div class="container">
+        <h2>Questions.</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <h4>What files does Nits open?</h4>
+            <p>16-bit and HDR TIFF files, including gain-map and floating-point variants. More formats (HEIC, AVIF, OpenEXR) are on the roadmap.</p>
+          </div>
+          <div class="faq-item">
+            <h4>Why don't I see the HDR pop on this page?</h4>
+            <p>Browsers and the App Store still display images in standard dynamic range, so the full HDR pop only appears when you open files in Nits on your iPad's HDR display.</p>
+          </div>
+          <div class="faq-item">
+            <h4>Does Nits collect any data?</h4>
+            <p>No. Nits collects nothing. Your files never leave your device. No account, no analytics, no tracking.</p>
+          </div>
+          <div class="faq-item">
+            <h4>Is there a subscription?</h4>
+            <p>No. Buy it once, keep it.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== BOTTOM CTA ========== -->
+    <section class="cta-bottom">
+      <div class="container">
+        <h2>See every stop.</h2>
+        <p class="tagline">Open your HDR TIFFs the way they were meant to be seen.</p>
+        <a href="https://apps.apple.com/app/id6773780191" class="app-store-badge" aria-label="Download Nits on the App Store">
+          <img src="app-store-badge.svg" alt="Download on the App Store" width="200" height="60">
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="links">
+        <a href="/support">Support</a>
+        <a href="/privacy">Privacy</a>
+        <a href="mailto:support@jamesga.lt">Contact</a>
+        <a href="https://apps.apple.com/app/id6773780191">App Store</a>
+      </div>
+      <p>© 2026 James Galt. All photography © James Galt.</p>
+      <p class="credit">Nits is made with care.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
