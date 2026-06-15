@@ -14,7 +14,7 @@ If you need help, found a bug, or have a feature request, you're in the right pl
 
 The fastest way to reach me:
 
-- **Email:** [support@jamesga.lt](mailto:support@jamesga.lt)
+- **Email:** [support@jamesgalt.photo](mailto:support@jamesgalt.photo)
 - **Report a bug or request a feature:** [open an issue](https://github.com/JamesGalt/nits/issues)
 
 I read everything and try to reply within a few days.
@@ -50,7 +50,7 @@ files never leave your device.
 ## Privacy
 
 Nits collects no data. A full privacy policy is available
-[here](https://nits.jamesga.lt/privacy) <!-- optional: see note in the .md file about a privacy page -->.
+[here](https://nits.jamesgalt.photo/privacy) <!-- optional: see note in the .md file about a privacy page -->.
 
 ---
 
