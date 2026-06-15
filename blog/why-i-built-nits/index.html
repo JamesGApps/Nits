@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I shot 10,000 HDR photos. I built Nits because no app could open them properly. | Nits</title>
+  <meta name="description" content="Why I built Nits, an HDR TIFF viewer for iPad. A story that starts with a cheetah in Tanzania and ends with an app on the App Store.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="I shot 10,000 HDR photos. I built Nits because no app could open them properly.">
+  <meta property="og:description" content="Why I built Nits, an HDR TIFF viewer for iPad. A story that starts with a cheetah in Tanzania.">
+  <meta property="og:image" content="../../og-blog-preview.jpg">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://nits.jamesgalt.photo/blog/why-i-built-nits/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="author" content="James Galt">
+  <meta property="article:author" content="James Galt">
+  <meta property="article:published_time" content="2026-06-17">
+
+  <link rel="icon" href="../../favicon.png">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+
+  <style>
+    /* ---------- Reset & base ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                   "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #0A0A0E;
+      color: #F5F5F7;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; transition: opacity 0.2s; }
+    a:hover { opacity: 0.8; }
+
+    :root {
+      --bg: #0A0A0E;
+      --bg-elev: #14141A;
+      --text: #F5F5F7;
+      --text-dim: #A1A1A6;
+      --accent: #C82E86;
+      --brand-grad: linear-gradient(135deg,
+                    #FF9A3E 0%, #FB5E5E 28%, #C82E86 55%,
+                    #7C2C9C 80%, #2E1A66 100%);
+      --reading-width: 680px;
+      --photo-width: 880px;
+    }
+
+    /* ---------- Top nav ---------- */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 14, 0.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px 24px;
+    }
+    .top-nav-inner {
+      max-width: var(--photo-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .top-nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 17px;
+    }
+    .top-nav .nav-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+    }
+    .top-nav .back-link {
+      margin-left: auto;
+      color: var(--text-dim);
+      font-size: 14px;
+      font-weight: 400;
+    }
+    .top-nav .back-link:hover { color: var(--text); opacity: 1; }
+
+    /* ---------- Article header ---------- */
+    .article-header {
+      max-width: var(--reading-width);
+      margin: 0 auto;
+      padding: 80px 24px 40px;
+      text-align: center;
+      position: relative;
+    }
+    .article-header::before {
+      content: "";
+      position: absolute;
+      inset: -10% -50% 30% -50%;
+      background: radial-gradient(ellipse at 50% 30%,
+                  rgba(200, 46, 134, 0.18) 0%,
+                  rgba(124, 44, 156, 0.08) 35%,
+                  rgba(10, 10, 14, 0) 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .article-eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+    .article-title {
+      font-size: clamp(36px, 5.5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin-bottom: 32px;
+    }
+    .article-meta {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 0;
+    }
+    .article-meta .meta-author {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ---------- Hero photo ---------- */
+    .hero-photo {
+      max-width: var(--photo-width);
+      margin: 40px auto 80px;
+      padding: 0 24px;
+    }
+    .hero-photo-frame {
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 3 / 2;
+      background: var(--bg-elev);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    }
+    .hero-photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero-photo-caption {
+      max-width: var(--reading-width);
+      margin: 16px auto 0;
+      font-size: 14px;
+      color: var(--text-dim);
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Placeholder when no image yet */
+    .photo-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg,
+                  rgba(200, 46, 134, 0.12),
+                  rgba(124, 44, 156, 0.08));
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      color: var(--text-dim);
+      font-size: 14px;
+      font-style: italic;
+      text-align: center;
+      padding: 24px;
+    }
+
+    /* ---------- Article body ---------- */
+    .article-body {
+      max-width: var(--reading-width);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .article-body p {
+      font-size: 19px;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+    .article-body p.lede {
+      font-size: 22px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .article-body em {
+      font-style: italic;
+      color: var(--text);
+    }
+    .article-body strong {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .article-body hr {
+      border: none;
+      width: 60px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 56px auto;
+    }
+
+    /* ---------- Inline photos ---------- */
+    .article-photo {
+      margin: 56px auto;
+      max-width: var(--photo-width);
+    }
+    .article-photo-frame {
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 3 / 2;
+      background: var(--bg-elev);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    }
+    .article-photo-frame.portrait {
+      aspect-ratio: 4 / 5;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+    .article-photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .article-photo-caption {
+      max-width: var(--reading-width);
+      margin: 14px auto 0;
+      font-size: 14px;
+      color: var(--text-dim);
+      text-align: center;
+      font-style: italic;
+      padding: 0 24px;
+    }
+
+    /* Lists */
+    .article-body ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px 0;
+    }
+    .article-body ul li {
+      font-size: 19px;
+      line-height: 1.6;
+      color: var(--text);
+      padding: 6px 0;
+      padding-left: 0;
+    }
+    .article-body ul li::before {
+      content: "·";
+      color: var(--accent);
+      font-weight: 700;
+      display: inline-block;
+      width: 16px;
+      margin-left: -16px;
+    }
+
+    /* ---------- Article footer ---------- */
+    .article-footer {
+      max-width: var(--reading-width);
+      margin: 80px auto 0;
+      padding: 48px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: center;
+    }
+    .article-footer h3 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .article-footer p {
+      font-size: 17px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .article-footer .app-store-badge img {
+      height: 56px;
+      display: inline-block;
+    }
+
+    /* ---------- Footer ---------- */
+    footer {
+      padding: 60px 0 40px;
+      margin-top: 80px;
+      border-top: 1px solid #1F1F23;
+      color: var(--text-dim);
+      font-size: 14px;
+      text-align: center;
+    }
+    footer .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    footer .links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+    footer .links a:hover { color: var(--text); }
+    footer .credit {
+      font-size: 13px;
+      margin-top: 8px;
+      opacity: 0.7;
+    }
+
+    /* ---------- Mobile ---------- */
+    @media (max-width: 640px) {
+      .article-header { padding: 60px 24px 32px; }
+      .article-body p { font-size: 17px; line-height: 1.65; }
+      .article-body p.lede { font-size: 19px; }
+      .hero-photo { margin: 32px auto 60px; }
+      .article-photo { margin: 40px auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top nav -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="/">
+        <img src="../../icon.png" alt="Nits" class="nav-icon">
+        <span>Nits</span>
+      </a>
+      <a href="/" class="back-link">← Back to Nits</a>
+    </div>
+  </nav>
+
+  <!-- Article header -->
+  <header class="article-header">
+    <p class="article-eyebrow">From the maker</p>
+    <h1 class="article-title">I shot 10,000 HDR photos. I built Nits because no app could open them properly.</h1>
+    <p class="article-meta">
+      <span class="meta-author">James Galt</span> &middot; June 17, 2026
+    </p>
+  </header>
+
+  <!-- Hero photo (cheetah opening scene) -->
+  <figure class="hero-photo">
+    <div class="hero-photo-frame">
+      <!-- PHOTO 1: HERO. Suggested: cheetah eating, or cheetah with cubs visible. Wide composition. -->
+      <img src="../../photos/blog/cheetah-hero.jpg" alt="A cheetah and her cubs in Tanzania, golden hour light">
+    </div>
+    <figcaption class="hero-photo-caption">
+      Tanzania, late afternoon. She lifted her head every time a vulture circled.
+    </figcaption>
+  </figure>
+
+  <!-- Article body -->
+  <article class="article-body">
+
+    <p class="lede">I was in Tanzania, sitting in the back of a Land Cruiser, when I realized something was wrong with how I was seeing my own photographs.</p>
+
+    <p>We'd been tracking a cheetah and her cubs for hours. She was eating, and she was nervous. Every time a vulture circled, she'd lift her head and scan the sky. Vultures meant hyenas would come, and hyenas would mean the cubs. She ate quickly, in fragments, never fully relaxed. I shot the cubs playing in the grass behind her, the kind of intimate scene you spend a whole trip hoping to witness.</p>
+
+    <p>That night, back at the lodge, I tried to look at the photos. I'd shot them on a Hasselblad X2D in 16-bit HDR. About 600 megabytes per file, every photon the sensor caught preserved in floating-point. The frames were supposed to be a record of exactly what I'd seen: the golden hour light on her fur, the catchlight in her eye, the kind of luminance range that fades when you look away.</p>
+
+    <!-- PHOTO 2: a cub-specific frame, ideally portrait or 4:5, mid-action -->
+    <figure class="article-photo">
+      <div class="article-photo-frame portrait">
+        <img src="../../photos/blog/cub.jpg" alt="A cheetah cub in the grass">
+      </div>
+    </figure>
+
+    <p>Photomator took fifteen seconds to open the file. By the time it loaded, the moment was gone. I was supposed to be reviewing, culling, learning from what I'd shot, and instead I was waiting. I tried another app. It crashed, out of memory. I tried Lightroom on iPad, which opened fast because it was showing me a downscaled preview, not the real file. Apple's Files preview gave me a low-res thumbnail. The third app opened the photo faster than Photomator but I noticed something off about the highlights. It had quietly tone-mapped my HDR file down to SDR without asking. The extended dynamic range I'd carefully captured was just gone. Converted into something my iPad's display could "safely" show.</p>
+
+    <p>I closed the iPad and stared at the canvas of the tent for a while.</p>
+
+    <hr>
+
+    <p>I bought the iPad Pro specifically for this. The tandem OLED on the M4 and M5 models has one of the most accurate HDR displays Apple has ever shipped. Peak brightness levels that expose detail in highlights you'd swear had been clipped, the kind of darkroom-grade contrast that makes photographs feel like the light is <em>coming out</em> of the screen rather than reflecting off it. It is, on paper, the perfect device for inspecting serious photography.</p>
+
+    <p>And yet every viewer I tried treated HDR TIFFs as a problem to be managed rather than a signal to be honored. The patterns were always the same:</p>
+
+    <ul>
+      <li>Photomator: instant if it was a JPEG, fifteen seconds if it was HDR TIFF.</li>
+      <li>Other viewers: crash on a 600MB file, out of memory.</li>
+      <li>Lightroom on iPad: fast, but showing you a downscaled preview, not the actual file at full resolution.</li>
+      <li>Apple's Photos and Files: low-resolution thumbnails, no real viewer mode.</li>
+      <li>A couple of indie apps: opened quickly, but silently tone-mapped to SDR with no indication they were doing it.</li>
+    </ul>
+
+    <p>There wasn't a single app that would let me just <em>look</em> at my photographs the way they actually were.</p>
+
+    <p>I'd bought the right device. The software ecosystem hadn't caught up.</p>
+
+    <hr>
+
+    <p>I've been shooting seriously for years. France, where I live. Japan, on trips that ruined me for any other city. Zanzibar, where the water makes a nonsense of every other color you've seen. And Tanzania, where the light has a quality I've never figured out how to describe, and where, alongside the wildlife, I shot portraits of Maasai and Zanzibari people I met, faces that carry more story than any landscape ever could.</p>
+
+    <!-- PHOTO 3: a portrait (Maasai or Zanzibari) - critical placement, treats subjects with dignity -->
+    <figure class="article-photo">
+      <div class="article-photo-frame portrait">
+        <img src="../../photos/blog/portrait.jpg" alt="Portrait taken in Tanzania">
+      </div>
+    </figure>
+
+    <p>About 10,000 HDR photos accumulated across these trips, in a format (16-bit gain-map TIFF) that's become the standard for serious work but is, paradoxically, almost impossible to view on the device you'd most want to view it on.</p>
+
+    <p>So I started building.</p>
+
+    <!-- PHOTO 4: a wider landscape from Japan, Zanzibar, or France - breathing room -->
+    <figure class="article-photo">
+      <div class="article-photo-frame">
+        <img src="../../photos/blog/landscape.jpg" alt="Landscape from travels">
+      </div>
+    </figure>
+
+    <hr>
+
+    <p>I should be clear about who I am. I'm a software engineer, but I work in application security, not image rendering. Building Nits meant learning an entirely new domain: Metal, Core Image, gain-map decoding, tile-based rendering, color management, HDR signaling. Things I didn't know existed six months ago, I now have opinions about.</p>
+
+    <p>I built it because I wanted to look at my own photographs and have the app respect what I'd shot. That's the only honest reason to build any indie tool. Because the problem is real to you and the existing solutions aren't. Everything else is rationalization.</p>
+
+    <p>The result is called Nits, named after the unit photographers use to measure brightness. The name felt right for an app that's mostly about not throwing brightness away. It does one thing: it opens 16-bit HDR TIFF files instantly and shows them in full extended dynamic range on the iPad display.</p>
+
+    <p><em>Instantly</em> is doing real work in that sentence. Nits opens a 600MB HDR TIFF in about a second using a tile-based Metal renderer that streams resolution in as you zoom, rather than rendering the whole image at full quality upfront. You can pinch to 1:1 pixels and the texture in a cheetah's whiskers is sharp. You can swipe between images at the speed of flicking through prints on a light table. The histogram shows the SDR/HDR split so you can see how much of your image extends past what an SDR display could even represent. The EXIF panel tells you everything: focal length, aperture, bit depth, color profile, headroom multiplier. It treats the photograph as the photographer left it.</p>
+
+    <p>There's no account. There's no subscription. There's no analytics. Your files never leave your device. I'm not sure I'd call Nits an app in the modern sense. It's more like a magnifying glass, designed to get out of the way.</p>
+
+    <hr>
+
+    <p>I built this for myself first. It turns out other photographers feel the same way. Medium-format shooters, Sony A7R and Fuji GFX users, Hasselblad people, anyone working at the high end of dynamic range hits the same walls I did. The frustration isn't dramatic. It's just a slow attrition of detail. A little tone-mapped here. A little downscaled preview there. A crash on the file you most want to see. By the time you've cycled through three different apps, you don't really know what you shot anymore.</p>
+
+    <p>Nits is the viewer I wished existed. It shipped on the App Store today.</p>
+
+    <!-- PHOTO 5: a striking HDR image - the peacock, peony, or another visually arresting shot -->
+    <figure class="article-photo">
+      <div class="article-photo-frame">
+        <img src="../../photos/blog/closing-image.jpg" alt="HDR photograph from Nits example library">
+      </div>
+    </figure>
+
+    <p>If you're a photographer who shoots HDR, I made this for you. There's a roadmap (export to HDR HEIC, a pixel loupe for inspecting RGB values, side-by-side compare for picking the keeper from a burst, broader format support for HEIC, AVIF, and OpenEXR), and I'll keep building. But v1.0 does the core thing well. It opens your photographs and shows them to you, in full, immediately.</p>
+
+    <p>The cheetah photos, by the way, are inside Nits as example images. So is one of the cubs, mid-tumble in the grass behind her. On an iPad Pro with HDR enabled, you can see what I saw. The catchlight in her eye is bright in a way an SDR display can't reproduce. It pops out of the grass like a tiny star. Fifteen seconds of waiting cost me the chance to feel that the first time. I built Nits so I'd never miss that moment again.</p>
+
+  </article>
+
+  <!-- Article footer / CTA -->
+  <section class="article-footer">
+    <h3>Nits is on the App Store.</h3>
+    <p>An HDR TIFF viewer for iPad. Made by a photographer, for photographers.</p>
+    <a href="https://apps.apple.com/app/id6773780191" class="app-store-badge" aria-label="Download Nits on the App Store">
+      <img src="../../app-store-badge.svg" alt="Download on the App Store" width="200" height="56">
+    </a>
+  </section>
+
+  <!-- Site footer -->
+  <footer>
+    <div class="container">
+      <div class="links">
+        <a href="/">Home</a>
+        <a href="/support">Support</a>
+        <a href="/privacy">Privacy</a>
+        <a href="mailto:hello@jamesgalt.photo">Contact</a>
+        <a href="https://apps.apple.com/app/id6773780191">App Store</a>
+      </div>
+      <p>© 2026 James Galt. All photography © James Galt.</p>
+      <p class="credit">Nits is made with care.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
