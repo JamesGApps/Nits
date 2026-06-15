@@ -23,4 +23,4 @@ answer is: **none**.
 ## Contact
 
 Questions about privacy? Email
-[support@jamesga.lt](mailto:support@jamesga.lt).
+[support@jamesgalt.photo](mailto:support@jamesgalt.photo).
