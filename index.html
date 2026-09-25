@@ -182,6 +182,58 @@
       .feature:nth-child(even) .feature-img  { order: 2; }
     }
 
+    /* ---------- New in 1.1 ---------- */
+    .whats-new { text-align: center; padding-top: 0; }
+    .eyebrow {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--brand-grad);
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .whats-new .lead {
+      font-size: 19px;
+      color: var(--text-dim);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .new-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 60px auto 0;
+    }
+    .new-card {
+      background: var(--bg-elev);
+      border-radius: 20px;
+      padding: 40px 32px;
+      text-align: left;
+    }
+    .new-card h3 {
+      font-size: clamp(26px, 3vw, 34px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .new-card p {
+      font-size: 17px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .new-card p + p { margin-top: 12px; }
+    .new-card code {
+      font-family: "SF Mono", ui-monospace, Menlo, monospace;
+      font-size: 15px;
+      color: var(--text);
+    }
+
     /* ---------- Gallery ---------- */
     .gallery { text-align: center; }
     .gallery .lead {
@@ -394,6 +446,27 @@
       </div>
     </section>
 
+    <!-- ========== NEW IN 1.1 ========== -->
+    <section class="whats-new">
+      <div class="container">
+        <span class="eyebrow">New in 1.1</span>
+        <h2>Share it. Inspect it.</h2>
+        <p class="lead">Two features straight off the roadmap: export straight from the viewer, and a loupe that reads the true value of any pixel.</p>
+        <div class="new-items">
+          <div class="new-card">
+            <h3>Export &amp; Share</h3>
+            <p>Save or share the image you're viewing as HDR HEIC, JPEG, or the original TIFF, to Photos, to Files, or through the share sheet.</p>
+            <p>Export at full resolution or pick a smaller size, and choose whether to keep EXIF and location metadata. HDR exports use the image's own headroom, never your screen brightness, so the same file exports the same way every time.</p>
+          </div>
+          <div class="new-card">
+            <h3>Pixel Inspector</h3>
+            <p>Touch and hold to bring up a magnifier that floats above your finger, so the pixel you're reading is never covered. The loupe itself renders in full HDR.</p>
+            <p>It reads the true value of each channel, e.g. <code>R&nbsp;100%&nbsp;+0.3 G&nbsp;100%&nbsp;+0.5 B&nbsp;98%</code>, so you can tell how many stops above SDR white each channel is and spot a saturated highlight that isn't actually white.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ========== GALLERY ========== -->
     <section class="gallery">
       <div class="container">
@@ -435,14 +508,6 @@
         <h2>What's next.</h2>
         <div class="roadmap-items">
           <div class="roadmap-card">
-            <h4>Export &amp; Share</h4>
-            <p>HDR HEIC, SDR JPEG, or original file — share images straight from the viewer.</p>
-          </div>
-          <div class="roadmap-card">
-            <h4>Pixel Loupe</h4>
-            <p>Press and hold to magnify, and read exact RGB and HDR values under your finger.</p>
-          </div>
-          <div class="roadmap-card">
             <h4>Side-by-Side</h4>
             <p>Place two images, or one image at two exposures, next to each other to pick the keeper.</p>
           </div>
@@ -469,7 +534,11 @@
           </div>
           <div class="faq-item">
             <h4>Does Nits collect any data?</h4>
-            <p>No. Nits collects nothing. Your files never leave your device. No account, no analytics, no tracking.</p>
+            <p>No. Nits collects nothing. Your files stay on your device unless you choose to share them. No account, no analytics, no tracking.</p>
+          </div>
+          <div class="faq-item">
+            <h4>Can Nits export HDR?</h4>
+            <p>Yes. Since version 1.1 Nits exports HDR HEIC with a gain map, so highlights stay bright in Photos and in other HDR-aware apps. JPEG and the original TIFF are available too.</p>
           </div>
           <div class="faq-item">
             <h4>Is there a subscription?</h4>
